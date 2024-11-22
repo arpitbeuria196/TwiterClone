@@ -1,22 +1,28 @@
-const express = require('express');
-const connectDB = require('./config/dbconfig');
+import express from 'express';
+import connectDB from './config/dbconfig.js';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import authRouter from './routes/authRouter.js'; // Ensure path is correct
 
 const app = express();
 
-const authRouter = require("./routes/authRouter");
+// Middleware setup
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
-app.use("/auth",authRouter);
+// Routes setup
+app.use("/auth", authRouter);
 
-
-connectDB().then(()=>
-{
+// Connect to MongoDB and start the server
+connectDB().then(() => {
     console.log("MongoDB connection started");
-    app.listen(8000,()=>{
+    app.listen(8000, () => {
         console.log("App is running at port number 8000");
-    })
-}).catch((error)=>
-{
+    });
+}).catch((error) => {
     console.error("MongoDB connection failed:", error);
-})
-
-
+});

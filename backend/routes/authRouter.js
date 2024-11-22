@@ -1,8 +1,94 @@
-const express = require('express');
-const authRouter = express.Router();
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
 
-authRouter.post("/register",(req,res)=>
+const router = express.Router();
+
+// Define your authentication routes
+router.post('/register', async (req, res) => {
+    const { userName, email, password } = req.body;
+
+    try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email: email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email is already registered' });
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user
+        const user = new User({
+            userName,
+            email,
+            password: hashedPassword
+        });
+
+        // Generate a JWT token
+        const token = jwt.sign({ userId: user._id }, "socialMedia@123", { expiresIn: '1d' });
+
+        // Set the token as an HTTP-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'Strict',
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        // Save the user in the database
+        await user.save();
+
+        // Respond with success
+        res.status(201).json({ message: 'User registered successfully', user: { userName, email } });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+router.post("/login",async (req,res)=>
 {
-    
+    const{email,password} = req.body;
+
+    try 
+    {
+        const user = await User.findOne({email : email});
+
+        if(!user)
+        {
+            return res.status(400).json({message:'User Doesnot exist'});
+        }
+
+        const isMatch = await bcrypt.compare(password,user.password);
+
+        const token = jwt.sign({userId : user._id},"socialMedia@123",{expiresIn:'1d'});
+
+        res.cookie('token',token,{
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 24 * 60 * 60 * 1000,
+        })
+
+        res.status(200).json({message:"Logged In Successfully"})
+        
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 })
 
+router.post("/logout",async (req,res)=>
+{
+    res.clearCookie('token',{
+        httpOnly:true,
+        secure:process.env.NODE_ENV === 'production',
+        sameSite:'Strict',
+    });
+    res.status(200).json({message:"Logged out successfully"})
+})
+
+
+export default router;

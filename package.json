@@ -4,7 +4,7 @@
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "backend/server.js",
   "scripts": {
-    "dev":"nodemon backend/server.js",
+    "dev": "nodemon backend/server.js",
     "start": "node backend/server.js"
   },
   "keywords": [],
@@ -22,5 +22,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
-  }
+  },
+  "type": "module"
 }
