@@ -2,7 +2,8 @@ import express from 'express';
 import connectDB from './config/dbconfig.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authRouter from './routes/authRouter.js'; // Ensure path is correct
+import authRouter from './routes/authRouter.js';
+import postRouter from './routes/postRouter.js';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(cors({
 
 // Routes setup
 app.use("/auth", authRouter);
+app.use("/post",postRouter);
 
 // Connect to MongoDB and start the server
 connectDB().then(() => {

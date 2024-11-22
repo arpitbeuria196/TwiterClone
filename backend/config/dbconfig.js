@@ -4,8 +4,8 @@ const connectDB = async ()=>
 {
     try 
     {
-        const conn = await mongoose.connect("MONGO_URI=mongodb+srv://Arpit196:yDB6s47VgJc30YEO@cluster0.uohce.mongodb.net/SocialMediaApp");
-        console.log("MongoDB Connected");
+        mongoose.connect("mongodb+srv://arpit196:arpitbeuria@cluster0.uohce.mongodb.net/SocialMediaDB");
+        console.log("MongoDB connected");
         
     } catch (error) 
     {
