@@ -11,10 +11,18 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: 'http://localhost:3000',
-    credentials: true
-}));
-
+    origin: 'http://localhost:5173', 
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+  }));
+  
+  // Add a simple logger for CORS preflight checks
+  app.use((req, res, next) => {
+    console.log('CORS Request Origin:', req.headers.origin);
+    next();
+  });
+  
 // Routes setup
 app.use("/auth", authRouter);
 app.use("/post",postRouter);

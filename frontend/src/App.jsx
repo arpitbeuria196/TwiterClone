@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import Login from "./components/Login";
 import appStore from "./store/appStore";
 import { Provider } from "react-redux"; 
+import Dashboard from "./components/Dashboard";
 
 function App() {
 
@@ -9,6 +10,10 @@ function App() {
     {
       path:"/",
       element: <Login/>
+    },
+    {
+      path:"/dashboard",
+      element: <Dashboard/>
     }
   ])
   

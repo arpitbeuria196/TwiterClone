@@ -49,36 +49,50 @@ router.post('/register', async (req, res) => {
 });
 
 
-router.post("/login",async (req,res)=>
-{
-    const{email,password} = req.body;
-
-    try 
-    {
-        const user = await User.findOne({email : email});
-
-        if(!user)
-        {
-            return res.status(400).json({message:'User Doesnot exist'});
+router.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      // Check if the user exists
+      const user = await User.findOne({ email: email });
+  
+      if (!user) {
+        return res.status(400).json({ message: 'User does not exist' });
+      }
+  
+      // Check if the password matches
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+  
+      // Create JWT token
+      const token = jwt.sign({ userId: user._id }, "socialMedia@123", { expiresIn: '1d' });
+  
+      // Set the cookie with the token
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+      });
+  
+      // Send response with user data and success message
+      res.status(200).json({
+        message: "Logged In Successfully",
+        user: {
+          userName: user.userName,  // Assuming the user has a 'userName' field
+          email: user.email
         }
-
-        const isMatch = await bcrypt.compare(password,user.password);
-
-        const token = jwt.sign({userId : user._id},"socialMedia@123",{expiresIn:'1d'});
-
-        res.cookie('token',token,{
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict',
-            maxAge: 24 * 60 * 60 * 1000,
-        })
-
-        res.status(200).json({message:"Logged In Successfully"})
-        
+      });
+  
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      console.error(error);
+      res.status(500).json({ message: error.message || "Internal Server Error" });
     }
-})
+  });
+  
 
 router.post("/logout",async (req,res)=>
 {
