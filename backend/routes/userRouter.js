@@ -48,6 +48,7 @@ userRouter.post("/upload", auth, upload.single('file'), async (req, res) => {
 userRouter.get("/",auth,async(req,res)=>{
     try {
         const users = await User.find({});
+        const restrictedUserId = req.user;
 
         if(!users || users.length == 0)
         {
@@ -55,7 +56,11 @@ userRouter.get("/",auth,async(req,res)=>{
 
            
         }
-        res.send(users);
+        const filteredUsers = users.filter(
+            (user) => user._id.toString() !== restrictedUserId.toString()
+        );
+
+        res.send(filteredUsers);
 
     } catch (error) {
         res.status(400).json({ message: error.message });

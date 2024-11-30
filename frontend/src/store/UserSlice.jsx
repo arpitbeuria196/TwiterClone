@@ -17,7 +17,7 @@ const userSlice = createSlice({
         LogOutUser : ()=>
         {
             return null;
-        }
+        },
     }
 })
 
