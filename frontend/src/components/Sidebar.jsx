@@ -23,6 +23,15 @@ const Sidebar = () => {
       console.log(error.message);
     }
   };
+  if (!userSelector) {
+    navigate("/");
+  }
+  
+
+  const profileRouteHandle = async ()=>
+  {
+    await navigate("/profile");
+  }
 
   return (
     <div className="font-poppins antialiased bg-white h-screen flex">
@@ -52,9 +61,9 @@ https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
             />
             <div>
               <h2 className="font-medium text-xs md:text-sm text-center text-teal-500">
-                {userSelector.userName}
+                {userSelector?.userName}
               </h2>
-              <p className="text-xs text-gray-500 text-center"> {userSelector.email}</p>
+              <p className="text-xs text-gray-500 text-center"> {userSelector?.email}</p>
             </div>
           </div>
 
@@ -93,9 +102,11 @@ https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
 </li>
 <li
   className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
+  onClick={profileRouteHandle}
 >
   <CgProfile className="text-xl text-gray-600" />
-  <span className="text-gray-700 font-medium">Profile</span>
+  <span className="text-gray-700 font-medium"
+  >Profile</span>
 </li>
 
               <li
@@ -108,7 +119,7 @@ https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
 
             </ul>
 
-            <button className="m-3 w-20 h-9 bg-blue-500 rounded-md border-none cursor-pointer flex items-center px-2 justify-between transition-all duration-300 hover:opacity-85 hover:-translate-y-1">
+            <button className="m-5 w-20 h-9 bg-blue-500 rounded-md border-none cursor-pointer flex items-center px-2 justify-between transition-all duration-300 hover:opacity-85 hover:-translate-y-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 data-name="Layer 1"

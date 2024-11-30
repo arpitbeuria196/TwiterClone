@@ -81,8 +81,8 @@ router.post("/login", async (req, res) => {
       // Send response with user data and success message
       res.status(200).json({
         message: "Logged In Successfully",
-        user: {
-          userName: user.userName,  // Assuming the user has a 'userName' field
+        user: {        
+          userName: user.userName,  
           email: user.email
         }
       });

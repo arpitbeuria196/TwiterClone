@@ -4,6 +4,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/authRouter.js';
 import postRouter from './routes/postRouter.js';
+import userRouter from './routes/userRouter.js';
+import path from 'path';
+
 
 const app = express();
 
@@ -23,9 +26,12 @@ app.use(cors({
     next();
   });
   
+app.use('/uploads', express.static(path.resolve('uploads'))); 
 // Routes setup
 app.use("/auth", authRouter);
 app.use("/post",postRouter);
+app.use("/user",userRouter);
+
 
 // Connect to MongoDB and start the server
 connectDB().then(() => {
