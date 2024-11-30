@@ -88,7 +88,7 @@ userRouter.put("/follow/:id",auth,async (req,res)=>
     try 
     {
         const userToFollow = await User.findById(req.params.id);
-        const user = await user.findOne(req.user);
+        const user = await User.findById(req.user);
 
         if(!userToFollow || !user)
         {
@@ -105,18 +105,18 @@ userRouter.put("/follow/:id",auth,async (req,res)=>
 
         await user.save();
         await userToFollow.save();
-        
+        res.status(200).json({ message: "User followed successfully" });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 })
 
 // Unfollow a User
-userRouter.put("/follow/:id",auth,async (req,res)=>
+userRouter.put("/unfollow/:id",auth,async (req,res)=>
 {
     try {
         const userToUnfollow = await User.findById(req.params.id);
-        const user = await user.findOne(req.user);
+        const user = await User.findById(req.user);
 
         if(!user.following.includes(userToUnfollow._id))
         {
@@ -127,10 +127,12 @@ userRouter.put("/follow/:id",auth,async (req,res)=>
            return following.toString() != userToUnfollow._id.toString();
         })
 
-        userToUnfollow.followers.filter(followerId => followerId.toString() !== user._id.toString());
+        userToUnfollow.followers = userToUnfollow.followers.filter(followerId => followerId.toString() !== user._id.toString());
 
         await user.save();
         await userToUnfollow.save();
+
+        res.status(200).json({ message: "User unfollowed successfully" });
          
         
     } catch (error) {
@@ -138,6 +140,43 @@ userRouter.put("/follow/:id",auth,async (req,res)=>
     }
 
 })
+// Get user's followers
+userRouter.get("/followers",auth,async (req,res)=>
+{
+    try {
+        const user = await User.findById(req.user).populate('followers','userName email profilePic');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user.followers);
+        
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+})
+
+//Get user's following
+userRouter.get("/following",auth,async (req,res)=>
+{   
+    try 
+    {
+        const user = await User.findById(req.user).populate('following','userName email profilePic');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user.following);
+
+        
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+
+})
+
+
+
 
 
 
