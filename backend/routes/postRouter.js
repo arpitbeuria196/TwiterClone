@@ -6,24 +6,33 @@ const postRouter = express.Router();
 
 postRouter.post("/", auth, async (req, res) => {
     try {
-        const { text, media } = req.body;
-        const userId = req.user; 
-
-        if (!userId) {
-            return res.status(400).json({ message: 'User ID is missing' });
-        }
-
-        const post = await Post.create({
-            user: userId,  
-            text,
-            media
-        });
-
-        res.status(201).json(post); 
+      const { text, media } = req.body;
+      const userId = req.user; 
+  
+      // Debugging logs
+      console.log("Request body:", req.body);
+      console.log("User ID:", userId);
+  
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is missing" });
+      }
+  
+      if (!text && !media) {
+        return res.status(400).json({ message: "Text or media is required" });
+      }
+  
+      const post = await Post.create({
+        user: userId,
+        text,
+        media,
+      });
+  
+      res.status(201).json(post); 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
-});
+  });
+  
 
 //Get All Posts
 postRouter.get("/",auth,async (req,res)=>
@@ -81,26 +90,20 @@ postRouter.put("/:id",auth, async (req,res)=>
 
 //Delete Post
 
-postRouter.delete("/:id",auth, async (req,res)=>
-    {
-        const {text,media} = req.body;
-        try {
-           
-            const post = await Post.find(req.params.id);
-             if(!post)
-            {
-                return res.status(404).json({ message: 'Post not found' });
-            }
-            
-            await post.remove();
-            res.status(200).json({ message: 'Post deleted successfully' });
-    
-        } catch (error) 
-        {
-            res.status(500).json({ message: error.message });
-            
+postRouter.delete("/:id", auth, async (req, res) => {
+    try {
+        const post = await Post.findByIdAndDelete(req.params.id); 
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
         }
-    })
+
+        res.status(200).json({ message: 'Post deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 
 //Like/Unlike Post
 postRouter.put("/:id/like",auth, async(req,res)=>
@@ -129,7 +132,7 @@ postRouter.put("/:id/like",auth, async(req,res)=>
 })
 
 //Add Comment
-postRouter.post("/:id/comment",auth,async (req,res)=>
+postRouter.put("/:id/comment",auth,async (req,res)=>
 {
     const {text} = req.body;
     try 

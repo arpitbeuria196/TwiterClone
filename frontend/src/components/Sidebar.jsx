@@ -5,33 +5,34 @@ import { LogOutUser } from "../store/UserSlice";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const userSelector = useSelector((store)=> store.user); 
+  const userSelector = useSelector((store) => store.user);
   const navigate = useNavigate();
-  
-  const isSidenavOpen = true; 
+
+  const isSidenavOpen = true;
 
   const logOutHandle = async () => {
     try {
-     await axios.post("http://localhost:8000/auth/logout");
+      await axios.post("http://localhost:8000/auth/logout");
       dispatch(LogOutUser());
-      console.log(userSelector);
       navigate("/");
     } catch (error) {
       console.log(error.message);
     }
   };
-  if (!userSelector) {
-    navigate("/");
-  }
-  
 
-  const profileRouteHandle = async ()=>
-  {
+  useEffect(() => {
+    if (!userSelector) {
+      navigate("/");
+    }
+  }, [userSelector, navigate]); // Run this effect when userSelector changes
+
+  const profileRouteHandle = async () => {
     await navigate("/profile");
-  }
+  };
 
   return (
     <div className="font-poppins antialiased bg-white h-screen flex">
@@ -45,12 +46,11 @@ const Sidebar = () => {
           {/* Logo */}
           <div id="profile" className="space-y-3">
             <img
-                className="w-16 rounded-full mx-auto"
-                src="
-https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
-                alt="Twitter Logo"
+              className="w-16 rounded-full mx-auto"
+              src="https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
+              alt="Twitter Logo"
             />
-            </div>
+          </div>
 
           {/* Profile Section */}
           <div id="profile" className="space-y-3">
@@ -94,29 +94,27 @@ https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
           <div id="menu" className="flex flex-col space-y-2">
             {/* Menu Items */}
             <ul>
-            <li
-  className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
->
-  <IoHomeOutline className="text-xl text-gray-600" />
-  <span className="text-gray-700 font-medium">Home</span>
-</li>
-<li
-  className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
-  onClick={profileRouteHandle}
->
-  <CgProfile className="text-xl text-gray-600" />
-  <span className="text-gray-700 font-medium"
-  >Profile</span>
-</li>
+              <li
+                className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
+              >
+                <IoHomeOutline className="text-xl text-gray-600" />
+                <span className="text-gray-700 font-medium">Home</span>
+              </li>
+              <li
+                className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
+                onClick={profileRouteHandle}
+              >
+                <CgProfile className="text-xl text-gray-600" />
+                <span className="text-gray-700 font-medium">Profile</span>
+              </li>
 
               <li
-  className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
-  onClick={()=>logOutHandle()}
->
-  <CiLogout className="text-xl text-gray-600" />
-  <span className="text-gray-700 font-medium">Logout</span>
-</li>
-
+                className="flex items-center space-x-2 m-3 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition duration-200"
+                onClick={logOutHandle}
+              >
+                <CiLogout className="text-xl text-gray-600" />
+                <span className="text-gray-700 font-medium">Logout</span>
+              </li>
             </ul>
 
             <button className="m-5 w-20 h-9 bg-blue-500 rounded-md border-none cursor-pointer flex items-center px-2 justify-between transition-all duration-300 hover:opacity-85 hover:-translate-y-1">
@@ -131,9 +129,7 @@ https://cdn.pixabay.com/photo/2017/11/10/05/05/twitter-2935414_1280.png"
                   d="M310.41,517.86c133.11,0,205.5-109.56,205.5-205.5v-9.79a159.14,159.14,0,0,0,35.23-37.18A162.88,162.88,0,0,1,510,277.16,76.14,76.14,0,0,0,541.35,238a179.78,179.78,0,0,1-45,17.61,69.88,69.88,0,0,0-52.84-23.51,73.54,73.54,0,0,0-72.44,72.44,38.14,38.14,0,0,0,2,15.65A202.33,202.33,0,0,1,224.3,243.89,74.93,74.93,0,0,0,214.52,281a77.73,77.73,0,0,0,31.31,60.66,66,66,0,0,1-33.27-9.79h0a71.54,71.54,0,0,0,58.74,70.46,60.34,60.34,0,0,1-19.57,1.95,33.28,33.28,0,0,1-13.7-1.95,74.14,74.14,0,0,0,68.5,50.88,147.72,147.72,0,0,1-90,31.31,54.14,54.14,0,0,1-17.64-1.91,184.79,184.79,0,0,0,111.55,35.23"
                 ></path>
               </svg>
-              <span className="text-white text-xs font-bold tracking-wider">
-                Tweet
-              </span>
+              <span className="text-white text-xs font-bold tracking-wider">Tweet</span>
             </button>
           </div>
         </div>
