@@ -106,46 +106,61 @@ postRouter.delete("/:id", auth, async (req, res) => {
 
 
 //Like/Unlike Post
-postRouter.put("/:id/like",auth, async(req,res)=>
-{
-    try 
-    {
+postRouter.put("/:id/like", auth, async (req, res) => {
+    try {
+        const { userId } = req.body; // Extract userId from the request body
+
+        // Validate userId
+        if (!userId) return res.status(400).json({ message: 'User ID is required' });
 
         const post = await Post.findById(req.params.id);
 
-        if (!post) return res.status(404).json({ message: 'Post not found' })
+        if (!post) return res.status(404).json({ message: 'Post not found' });
 
-        if(post.likes.includes(req.user))
-        {
-            post.likes = post.likes.filter((like)=> like.toString()!=req.user);
+        // Check if the user has already liked the post
+        if (post.likes.includes(userId)) {
+            post.likes = post.likes.filter((like) => like.toString() !== userId); // Remove the user's like
             await post.save();
             return res.status(200).json({ message: 'Post unliked', likes: post.likes });
         }
 
-        post.likes.push(req.user);
+        // Add the user's like
+        post.likes.push(userId);
         await post.save();
         res.status(200).json({ message: 'Post liked', likes: post.likes });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });   
+        res.status(500).json({ message: error.message || 'Internal Server Error' });
     }
-})
+});
+
 
 //Add Comment
-postRouter.put("/:id/comment",auth,async (req,res)=>
-{
-    const {text} = req.body;
-    try 
-    {
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ message: 'Post not found' });
-        
-        post.comments.push({user: req.user,text});
-        await post.save();
-        res.status(200).json({message:"Comment Added Successfully"});
+// Add Comment
+postRouter.post("/:id/comment", auth, async (req, res) => {
+    const { text } = req.body;
+    try {
+      // Find the post by its ID
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json({ message: 'Post not found' });
+  
+      // Add the comment with the user information
+      const newComment = { user: req.user, text }; // Create the new comment object
+      post.comments.push(newComment); // Push the new comment to the comments array
+  
+      // Save the post with the new comment
+      await post.save();
+  
+      // Respond with the new comment
+      res.status(200).json({
+        message: "Comment Added Successfully",
+        comment: newComment, // Return the newly added comment
+      });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      // If there's an error, return the error message
+      res.status(500).json({ message: error.message });
     }
-})
+  });
+  
 
 export default postRouter;

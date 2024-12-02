@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {getAllPosts,createPost, editPost, deletePostById} from "../store/postSlice"
 import PostCard from "./PostCard"
 
+
+
 const Dashboard = () => {
 
  const postDispatch = useDispatch();
@@ -39,6 +41,39 @@ const fetchAllPosts = async ()=>
   
  }
 }
+
+const likeAPI = async (postId, userId) => {
+  try {
+      const response = await axios.put(
+          `http://localhost:8000/post/${postId}/like`, 
+          { userId }, 
+          { withCredentials: true }
+      );
+      postDispatch(editPost(response.data)); 
+      fetchAllPosts();
+  } catch (error) {
+      console.log(error.response?.data?.message || error.message);
+  }
+};
+
+const addCommentAPI = async (postId, commentText) => {
+  try {
+    const response = await axios.post(
+      `http://localhost:8000/post/${postId}/comment`, 
+      { text: commentText },
+      { withCredentials: true }
+    );
+    fetchAllPosts(); 
+    postDispatch(editPost(response.data));  
+  } catch (error) {
+    console.log(error.response?.data?.message || error.message);
+  }
+};
+
+
+
+
+
 
 const editAPI = async (editId)=>
 {
@@ -220,6 +255,8 @@ const deleteAPI = async (editId)=>
         post={post}
         editHandle = {editHandle}
         deleteAPI = {deleteAPI}
+        likeAPI = {likeAPI}
+        addCommentAPI={addCommentAPI}
         />
       ))
       :
