@@ -1,37 +1,72 @@
 import Post from '../models/Posts.js';
 import express from 'express';
 import auth from '../middlewares/auth.js';
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multer from 'multer';
+
+cloudinary.config({
+  cloud_name: "djllxysth",
+  api_key: "775579231944985",
+  api_secret: "b-AJ6BlL7GOUSrktzP6ibZXi4hs",
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "posts",
+    allowed_formats: ["jpg", "jpeg", "png", "gif", "mp4", "mov"], 
+  },
+});
+
+const upload = multer({storage});
+
 
 const postRouter = express.Router();
 
-postRouter.post("/", auth, async (req, res) => {
-    try {
-      const { text, media } = req.body;
-      const userId = req.user; 
-  
+postRouter.post("/", auth, upload.single("media"), async (req, res) => {
+  try {
+      const { text } = req.body; 
+      const userId = req.user;
+
       // Debugging logs
       console.log("Request body:", req.body);
       console.log("User ID:", userId);
-  
+
+      // Validate user ID
       if (!userId) {
-        return res.status(400).json({ message: "User ID is missing" });
+          return res.status(400).json({ message: "User ID is missing" });
       }
-  
-      if (!text && !media) {
-        return res.status(400).json({ message: "Text or media is required" });
+
+      // Validate text or file
+      if (!text && !req.file) {
+          return res.status(400).json({ message: "Text or media is required" });
       }
-  
+
+      // Upload media to Cloudinary if a file exists
+      let mediaUrl = null;
+      if (req.file) {
+          const result = await cloudinary.uploader.upload(req.file.path, {
+              folder: "posts", 
+          });
+          mediaUrl = result.secure_url; 
+      }
+
+      // Create the post
       const post = await Post.create({
-        user: userId,
-        text,
-        media,
+          user: userId,
+          text,
+          media: mediaUrl, 
       });
-  
-      res.status(201).json(post); 
-    } catch (error) {
+
+      // Send the created post as a response
+      res.status(201).json(post);
+  } catch (error) {
+      console.error("Error creating post:", error);
       res.status(500).json({ message: error.message });
-    }
-  });
+  }
+});
+
   
 
 //Get All Posts
@@ -66,17 +101,30 @@ postRouter.get("/:id",auth,async (req,res)=>
 //Update Post
 postRouter.put("/:id",auth, async (req,res)=>
 {
-    const {text,media} = req.body;
+    
     try {
-       
+
+      const {text} = req.body; 
         const existingPost = await Post.findById(req.params.id);
         console.log(existingPost);
          if(!existingPost)
         {
             return res.status(404).json({ message: 'Post not found' });
         }
+
+        if(req.file)
+        {
+          const uploadResult = await cloudinary.uploader.upload(req.file.path,{
+            folder:"posts"
+          })
+        }
+
+        mediaUrl = uploadResult.secure_url;
+
+
+
         existingPost.text = text || existingPost.text;
-        existingPost.media = media || existingPost.media;
+        existingPost.media = mediaUrl;
 
     const updatedPost =  await existingPost.save();
      res.status(200).json(updatedPost);

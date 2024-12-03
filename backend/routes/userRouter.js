@@ -3,23 +3,29 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 import multer from 'multer';
 import auth from "../middlewares/auth.js";
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { v2 as cloudinary } from "cloudinary";
+
+
 
 
 const userRouter = express.Router();
 
-const storage = multer.diskStorage({
-    destination:(req, file,cb) =>
-    {
-        const uploadPath = path.resolve('uploads');
-        cb(null,uploadPath);
-    },
-    filename: (req,file,cb)=>
-    {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+cloudinary.config({
+    cloud_name: "djllxysth",
+  api_key: "775579231944985",
+  api_secret: "b-AJ6BlL7GOUSrktzP6ibZXi4hs",
 })
 
-const upload = multer({storage: storage});
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "posts",
+      allowed_formats: ["jpg", "jpeg", "png", "gif", "mp4", "mov"], 
+    },
+})
+
+const upload = multer({storage})
 
 userRouter.post("/upload", auth, upload.single('file'), async (req, res) => {
     console.log("Auth middleware passed, user:", req.user);
@@ -35,7 +41,17 @@ userRouter.post("/upload", auth, upload.single('file'), async (req, res) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        user.profilePic = `http://localhost:8000/uploads/${req.file.filename}`;
+        
+        const result = await cloudinary.uploader.upload(req.file.path,{
+            folder:"profiles"
+        })
+
+        let mediaUrl = result.secure_url;
+
+        user.profilePic = mediaUrl;
+
+
+
         await user.save();
 
         res.status(200).json({ message: 'Profile picture uploaded successfully', profilePic: user.profilePic });
