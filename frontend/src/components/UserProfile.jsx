@@ -4,6 +4,7 @@ import { getAllUser } from "../store/userFollowSlice";
 import axios from "axios";
 import UserCard from "./UserCard";
 import PaginationButton from "./PaginationButton";
+import {updatedUser} from "../store/UserSlice"
 
 const UserProfile = () => {
     const dispatch = useDispatch();
@@ -37,6 +38,7 @@ const UserProfile = () => {
             withCredentials:true
         });
         console.log('Followed successfully', response);
+        dispatch(updatedUser(response.data));
         fetchData();
       } catch (error) {
         setError("Failed to follow user.");
@@ -50,6 +52,7 @@ const UserProfile = () => {
             withCredentials:true
         });
         console.log('Followed successfully', response);
+        dispatch(updatedUser(response.data));
         fetchData();
       } catch (error) {
         console.error('Error following user:', error);

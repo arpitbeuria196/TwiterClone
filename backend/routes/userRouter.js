@@ -27,12 +27,12 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({storage})
 
-userRouter.post("/upload", auth, upload.single('file'), async (req, res) => {
+userRouter.put("/upload", auth, upload.single('profilePic'), async (req, res) => {
     console.log("Auth middleware passed, user:", req.user);
     console.log("File upload request:", req.file);
 
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findOne({_id:req.user});
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });

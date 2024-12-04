@@ -98,43 +98,33 @@ postRouter.get("/:id",auth,async (req,res)=>
     }
 })
 
-//Update Post
-postRouter.put("/:id",auth, async (req,res)=>
-{
-    
-    try {
+// Update Post
+postRouter.put("/:id", auth, upload.single('media'), async (req, res) => {
+  console.log(req.file);
+  const { text } = req.body;
+  const existingPost = await Post.findById(req.params.id);
 
-      const {text} = req.body; 
-        const existingPost = await Post.findById(req.params.id);
-        console.log(existingPost);
-         if(!existingPost)
-        {
-            return res.status(404).json({ message: 'Post not found' });
-        }
+  if (!existingPost) {
+    return res.status(404).json({ message: 'Post not found' });
+  }
 
-        if(req.file)
-        {
-          const uploadResult = await cloudinary.uploader.upload(req.file.path,{
-            folder:"posts"
-          })
-        }
+  let mediaUrl = existingPost.media;
 
-        mediaUrl = uploadResult.secure_url;
+  if (req.file) {
+    console.log('File uploaded:', req.file); 
+    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: "posts"
+    });
+    mediaUrl = uploadResult.secure_url;
+  }
 
+  existingPost.text = text || existingPost.text;
+  existingPost.media = mediaUrl;
 
+  const updatedPost = await existingPost.save();
+  res.status(200).json(updatedPost);
+});
 
-        existingPost.text = text || existingPost.text;
-        existingPost.media = mediaUrl;
-
-    const updatedPost =  await existingPost.save();
-     res.status(200).json(updatedPost);
-
-    } catch (error) 
-    {
-        res.status(500).json({ message: error.message });
-        
-    }
-})
 
 //Delete Post
 

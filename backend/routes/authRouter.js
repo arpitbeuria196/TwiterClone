@@ -40,14 +40,11 @@ router.post('/register', async (req, res) => {
         // Save the user in the database
         await user.save();
 
+        const userResponse = await User.findById(user._id).select('-password');
         // Respond with success
         res.status(201).json({ 
           message: 'User registered successfully', 
-          user: { 
-              _id: user._id, 
-              userName, 
-              email 
-          } 
+          user:userResponse
       });
       
 
@@ -85,15 +82,13 @@ router.post("/login", async (req, res) => {
         sameSite: 'Strict',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       });
+
+      const userResponse = await User.findById(user._id).select('-password');
   
       // Send response with user data and success message
       res.status(200).json({
         message: "Logged In Successfully",
-        user: { 
-          _id: user._id,       
-          userName: user.userName,  
-          email: user.email
-        }
+        user:userResponse
       });
   
     } catch (error) {

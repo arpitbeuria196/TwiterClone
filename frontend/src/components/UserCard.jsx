@@ -1,16 +1,15 @@
 import { useState } from "react";
 
 const UserCard = ({ user, followAPI, unFollowAPI }) => {
-  const [isFollowed, setIsFollowed] = useState(false); 
+  const [isFollowed, setIsFollowed] = useState(false);
 
   const handleFollowToggle = async () => {
     if (isFollowed) {
-      
       await unFollowAPI(user._id);
     } else {
       await followAPI(user._id);
     }
-    setIsFollowed(!isFollowed); 
+    setIsFollowed(!isFollowed);
   };
 
   return (
@@ -18,13 +17,15 @@ const UserCard = ({ user, followAPI, unFollowAPI }) => {
       {/* Profile Picture */}
       <div className="space-y-1">
         <img
-        className="w-20 md:w-20 rounded-full mx-auto"
-         src={user.profilePic} alt={user.userName} />
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full m-2 object-cover"
+          src={user.profilePic || "default-profile-pic.jpg"} // Use a default image if none provided
+          alt={user.userName}
+        />
       </div>
 
       {/* User Info */}
       <div className="flex flex-col justify-center flex-grow">
-        <span className="font-bold text-sm">{user?.userName || "Anonymous"}</span>
+        <span className="font-bold text-sm text-black">{user?.userName || "Anonymous"}</span>
         <p className="text-xs text-gray-500">{user?.email?.toLowerCase()}</p>
       </div>
 

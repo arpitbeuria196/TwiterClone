@@ -18,8 +18,16 @@ const userSlice = createSlice({
         {
             return null;
         },
+        updatedUser: (state,action)=>
+        {
+            if(state)
+            {
+                return {...state,...action.payload}
+            }
+            return state;
+        }
     }
 })
 
-export const {LogOutUser,LoginUser,SignUpUser} = userSlice.actions;
+export const {LogOutUser,LoginUser,SignUpUser,updatedUser} = userSlice.actions;
 export default userSlice.reducer

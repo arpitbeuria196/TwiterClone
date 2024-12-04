@@ -22,10 +22,17 @@ const postSlice = createSlice({
         {
             state[postIndex] = {...state[postIndex],...updatedPost}
         }
-    }
+    },
+
+    addComment: (state, action) => {
+      const { postId, comment } = action.payload;
+      const postIndex = state.findIndex((post) => post.id === postId);
+      if (postIndex !== -1) {
+        state[postIndex].comments.push(comment);
+      }
   },
 });
 
-export const { getAllPosts, createPost, deletePostById,editPost } = postSlice.actions;
+export const { getAllPosts, createPost, deletePostById,editPost,addComment } = postSlice.actions;
 
 export default postSlice.reducer;
